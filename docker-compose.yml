@@ -1,0 +1,74 @@
+version: "3.7"
+services:
+  zookeeper:
+    image: docker.io/bitnami/zookeeper:3.7
+    volumes:
+    - "./data:/bitnami:rw"
+    environment:
+    - "TZ=$TZ"
+    - "ZOO_ENABLE_AUTH=yes"
+    - "ZOO_SERVER_USERS=kafka"
+    - "ZOO_SERVER_PASSWORDS=cfa074a3276a41758a03ca5896c501b2"
+    container_name: "zk_zkkfk"
+    restart: "always"
+    networks:
+      zkkfk:
+        aliases:
+        - "zookeeper"
+  kafka:
+    image: docker.io/bitnami/kafka:2
+    ports:
+    - "9093:9093"
+    volumes:
+    - "./data:/bitnami:rw"
+    - "./certs/keystore/kafka.keystore.jks:/opt/bitnami/kafka/config/certs/kafka.keystore.jks:ro"
+    - "./certs/truststore/kafka.truststore.jks:/opt/bitnami/kafka/config/certs/kafka.truststore.jks:ro"
+    environment:
+    - "TZ=$TZ"
+    - "KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=INTERNAL:SASL_SSL,CLIENT:SASL_SSL"
+    - "KAFKA_CFG_LISTENERS=INTERNAL://:9092,CLIENT://:9093"
+    - "KAFKA_CFG_ADVERTISED_LISTENERS=INTERNAL://:9092,CLIENT://:9093"
+    - "KAFKA_CFG_SASL_MECHANISM_INTER_BROKER_PROTOCOL=PLAIN"
+    - "KAFKA_CFG_SASL_ENABLED_MECHANISMS=PLAIN"
+    - "KAFKA_CFG_SSL_ENDPOINT_IDENTIFICATION_ALGORITHM="
+    - "KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true"
+    - "KAFKA_CFG_BROKER_ID=1"
+    - "KAFKA_CFG_NUM_PARTITIONS=10"
+    - "KAFKA_INTER_BROKER_LISTENER_NAME=INTERNAL"
+    - "KAFKA_CFG_ZOOKEEPER_CONNECT=zookeeper:2181"
+    - "KAFKA_ZOOKEEPER_PROTOCOL=SASL"
+    - "KAFKA_ZOOKEEPER_USER=kafka"
+    - "KAFKA_ZOOKEEPER_PASSWORD=cfa074a3276a41758a03ca5896c501b2"
+    - "KAFKA_INTER_BROKER_USER=dspider"
+    - "KAFKA_INTER_BROKER_PASSWORD=f916743824a64ed4ae15633825ebd577"
+    - "KAFKA_CLIENT_USERS=dspider"
+    - "KAFKA_CLIENT_PASSWORDS=f916743824a64ed4ae15633825ebd577"
+    - "KAFKA_TLS_TYPE=JKS"
+    - "KAFKA_CERTIFICATE_PASSWORD=65340db9d7664c2e845bf54486fc3263"
+    depends_on:
+    - "zookeeper"
+    container_name: "kfk_zkkfk"
+    networks:
+      zkkfk:
+        aliases:
+        - "kafka"
+  redis:
+    image: docker.io/library/redis:latest
+    ports:
+    - "6379:6379"
+    volumes:
+    - "./data/redis:/data:rw"
+    command:
+    - "redis-server"
+    - "--appendonly"
+    - "yes"
+    - "--requirepass"
+    - "c08c2813cf7747818225aff03300aba0"
+    container_name: "redis_dspider"
+    networks:
+      zkkfk:
+        aliases:
+        - "redis"
+networks:
+  zkkfk:
+    name: "zkkfk"
