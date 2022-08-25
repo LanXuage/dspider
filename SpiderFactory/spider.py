@@ -59,7 +59,7 @@ class Spider:
         await self.producer.send_and_wait(topic_name, json.dumps(data).encode())
     
     async def process_payload(self, payload):
-        return payload
+        return base64.b64encode(json.dumps(payload).encode()).decode()
 
     async def publish_tasks(self, next_urls):
         task = self.task.copy()
