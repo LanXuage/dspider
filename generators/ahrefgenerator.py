@@ -4,7 +4,7 @@
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 
-async def generate(url, raw):
+async def generate(url, payload, raw):
     old_urls = set()
     old_urls.add(url)
     next_urls = set()
@@ -15,6 +15,6 @@ async def generate(url, raw):
             if next_url.startswith('/'):
                 up = urlparse(url)
                 next_url = up.scheme + '://' + up.netloc + next_url
-            next_urls.add(next_url)
+            next_urls.add({'url': next_url})
     return next_urls, old_urls
 

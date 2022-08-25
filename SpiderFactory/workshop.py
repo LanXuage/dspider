@@ -1,12 +1,14 @@
 #!/bin/env python3
 # -*- coding: utf-8 -*-
 import asyncio
+import logging
 import aioredis
 
 from spider import Spider
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 from config import KAFKA_SERVERS, SASL_MECHANISM, SASL_PLAIN_USERNAME, SASL_PLAIN_PASSWORD, SECURITY_PROTOCOL, KAFKA_VERSION, TASK_TOPIC_NAME, RESULT_TOPIC_NAME, COMPRESSION_TYPE, SSL_CONTEXT, GROUP_ID, REDIS_URL, REDIS_USERNAME, REDIS_PASSWORD, OLD_URLS_KEY
 
+log = logging.getLogger(__name__)
 
 class Workshop:
     def __init__(self, num_spider=2):
@@ -52,9 +54,9 @@ class Workshop:
             await self.get_redis()
             await self.get_producer()
             await self.get_consumer()
-            print(self.redis)
-            print(self.producer)
-            print(self.consumer)
+            log.info(self.redis)
+            log.info(self.producer)
+            log.info(self.consumer)
             self.spiders = []
             self.spider_coroutines= []
             for _ in range(self.num_spider):
@@ -68,13 +70,16 @@ class Workshop:
                 ) 
                 self.spiders.append(spider)
                 self.spider_coroutines.append(spider.working())
-            asyncio.gather(*self.spider_coroutines)
+            asyncio.gather(*self.spider_coroutines, return_exceptions=True)
             while True:
                 await asyncio.sleep(1)
                 if self.stop:
                     break
-        finally:
+        except asyncio.exceptions.CancelledError as e:
             await self.close()
+            raise e
+        except Exception as e:
+            log.error(e, exc_info=True)
 
     async def close(self):
         await self.producer.stop()

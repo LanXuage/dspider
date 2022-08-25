@@ -15,5 +15,9 @@ async def main():
         code = compile(f.read(), filename='ahrefgenerator.py', mode='exec')
         await redis.set('generator_id', marshal.dumps(code))
         await redis.close()
+    with open('generators/jizhile_generator.py', 'rb') as f:
+        code = compile(f.read(), filename='jizhile_generator.py', mode='exec')
+        await redis.set('jizhile', marshal.dumps(code))
+        await redis.close()
 
 asyncio.run(main())

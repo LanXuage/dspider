@@ -20,6 +20,7 @@ services:
   kafka:
     image: 'bitnami/kafka:2.8.1'
     container_name: 'dspider_kafka'
+    hostname: 'dspider_kafka'
     ports:
     - '9093:9093'
     volumes:

@@ -1,5 +1,6 @@
 #!/bin/env python3
 # -*- coding: utf-8 -*-
+import base64
 import json
 import logging
 import asyncio
@@ -8,6 +9,28 @@ from aiokafka import AIOKafkaProducer
 from config import KAFKA_SERVERS, SASL_MECHANISM, SASL_PLAIN_USERNAME, SASL_PLAIN_PASSWORD, SECURITY_PROTOCOL, SSL_CONTEXT, KAFKA_VERSION, TASK_TOPIC_NAME, COMPRESSION_TYPE
 
 log = logging.getLogger(__name__)
+
+access_token = '21861_da40243437434b644174a6544172e879'
+
+headers = {
+    'Accept-Encoding': 'gzip, deflate, br',
+    'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/103.0.5060.114 Safari/537.36 Edg/103.0.1264.62',
+    'Origin': 'https://www.dajiala.com',
+    'Content-Type': 'application/json', 
+    'Sec-Fetch-Site': 'cross-site',
+    'Sec-Fetch-Mode': 'cors',
+    'Sec-Fetch-Dest': 'empty',
+    'accessToken': access_token,
+    'sec-ch-ua': '" Not;A Brand";v="99", "Microsoft Edge";v="103", "Chromium";v="103"',
+    'sec-ch-ua-mobile': '?0',
+    'sec-ch-ua-platform': '"Windows"',
+    'Pragma': 'no-cache',
+    'Cache-Control': 'no-cache',
+    'Accept': 'application/json, text/plain, */*',
+    'Connection': 'close'
+}
+payload = {"kw": "北京广播电视台","page":1,"num":10,"extra":0,"area":"","dajiala_index":"","fans":"","filter_kw":"","industries":"0,","kw_type":"2","publish_total":"","recent":"","register":"","st":"","top_praise":"","top_read":"","type":"","zhuti":""}
 
 async def send():
     producer = AIOKafkaProducer(
@@ -25,12 +48,16 @@ async def send():
         task = {
             "id": 1, # required
             "url": "https://www.baidu.com/index.php", # required
+            "method": "GET",
+            "headers": "{\"token\":\"123456\"}",
+            "payload": "e30=", # encode with base64
+            "timeout": 60,
             "use_robots": True,
             "use_tor": False,
             "use_proxy": False,
             "matcher": "matcher_id", # required
             "generator": "generator_id", # required
-            "exporter": "exporter_id", # required
+            "exporter": "exporter_id",
             "is_periodic": False,
             "task_status": 0, # 0 未开始，1 执行中，2 已结束
             "cron_expn": "* */4 * * *",
@@ -38,7 +65,16 @@ async def send():
             "update_time": "2022-08-23 16:35",
             "create_time": "2022-08-23 16:35"
         }
-        await producer.send_and_wait(TASK_TOPIC_NAME, json.dumps(task).encode())
+        jizhile_task = {
+            "id": 2,
+            "url": "https://www.jzl.com/fbmain/search/v1/senior_search/name",
+            "method": "POST",
+            "headers": json.dumps(headers),
+            "payload": base64.b64encode(json.dumps(payload).encode()).decode(),
+            "matcher": "matcher_id",
+            "generator": "jizhile"
+        }
+        await producer.send_and_wait(TASK_TOPIC_NAME, json.dumps(jizhile_task).encode())
         log.info('Publish task done. ')
     finally:
         await producer.stop()

@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import json
 import types
+import base64
 import logging
 import aiohttp
 import marshal
@@ -10,9 +11,6 @@ from urllib.parse import urlparse
 from helpers import is_url, preprocess_url
 from aiorobotparser import AIORobotFileParser
 
-headers = {
-    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.63 Safari/537.36 Edg/93.0.961.47'
-}
 
 log = logging.getLogger(__name__)
 
@@ -26,7 +24,7 @@ class Spider:
             result_topic_name, 
             old_urls_key,
             timeout=30,
-            headers=headers
+            headers={'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.63 Safari/537.36 Edg/93.0.961.47'}
         ):
         self.consumer = consumer
         self.producer = producer
@@ -47,6 +45,7 @@ class Spider:
         self.matcher_id = None
         self.netloc = None
         self.scheme = None
+        self.payload = None
 
     async def get_task(self):
         self.msg = await self.consumer.__anext__()
@@ -58,11 +57,20 @@ class Spider:
     
     async def producer_send(self, topic_name, data):
         await self.producer.send_and_wait(topic_name, json.dumps(data).encode())
+    
+    async def process_payload(self, payload):
+        return payload
 
     async def publish_tasks(self, next_urls):
         task = self.task.copy()
         for next_url in next_urls:
-            task['url'] = next_url
+            task['url'] = next_url.get('url')
+            if 'method' in next_url:
+                task['method'] = next_url.get('method')
+            if 'headers' in next_url:
+                task['headers'] = next_url.get('headers')
+            if 'payload' in next_url:
+                task['payload'] = await self.process_payload(next_url.get('payload'))
             await self.publish_task(task)
 
     async def add_old_urls(self, old_urls):
@@ -71,6 +79,7 @@ class Spider:
 
     async def deliver_result(self, result):
         result['id'] = self.task.get('id')
+        log.info('Result %s', result)
         await self.producer_send(self.result_topic_name, result)
 
     async def deliver_results(self, results):
@@ -79,7 +88,24 @@ class Spider:
 
     async def get_data(self):
         log.info('URL = %s', self.url)
-        async with self.session.get(self.url, timeout=self.timeout, headers=self.headers) as resp:
+        method = 'GET'
+        if 'method' in self.task:
+            method = self.task.get('method')
+        headers = self.headers
+        if 'headers' in self.task:
+            headers = json.loads(self.task.get('headers'))
+            headers.update(self.headers)
+        timeout = self.timeout
+        if 'timeout' in self.task:
+            timeout = self.task.get('timeout')
+        self.payload = None
+        if 'payload' in self.task:
+            self.payload = base64.b64decode(self.task.get('payload'))
+        log.info('Method %s', method)
+        log.info('Headers %s', headers)
+        log.info('Timeout %s', timeout)
+        log.info('Payload %s', self.payload)
+        async with self.session.request(method, self.url, timeout=timeout, headers=headers, data=self.payload) as resp:
             self.resp_raw = await resp.read()
 
     async def get_robots(self):
@@ -97,13 +123,16 @@ class Spider:
             raise Exception('Unexpected URL %s', self.url)
         if self.netloc != url_parse.netloc:
             self.netloc = url_parse.netloc
-            self.robot_parser = AIORobotFileParser()
-            robot_url = '{}://{}/robots.txt'.format(self.scheme, self.netloc)
-            log.info('Robot url %s', robot_url)
-            self.robot_parser.set_url(robot_url)
-            await self.robot_parser.read()
-            log.info('Crawl delay %s', self.robot_parser.crawl_delay('*'))
-            log.info('Request rate %s', self.robot_parser.request_rate("*"))
+            try:
+                self.robot_parser = AIORobotFileParser()
+                robot_url = '{}://{}/robots.txt'.format(self.scheme, self.netloc)
+                log.info('Robot url %s', robot_url)
+                self.robot_parser.set_url(robot_url)
+                await self.robot_parser.read()
+                log.info('Crawl delay %s', self.robot_parser.crawl_delay('*'))
+                log.info('Request rate %s', self.robot_parser.request_rate("*"))
+            except:
+                self.robot_parser = None
 
     async def create_tasks(self):
         generator_id = self.task.get('generator')
@@ -114,10 +143,10 @@ class Spider:
             await self.get_generator()
         log.info('Generator %s', self.generator)
         try:
-            next_urls, old_urls = await self.generator.generate(self.url, self.resp_raw)
+            next_urls, old_urls = await self.generator.generate(self.url, self.payload, self.resp_raw)
             log.info('Next urls %s', next_urls)
         except Exception as e:
-            log.error(e)
+            log.error(e, exc_info=True)
             next_urls = set()
             old_urls = set()
         if not next_urls:
@@ -170,15 +199,15 @@ class Spider:
             return True
         self.url = url
         await self.get_robots()
-        return self.use_robots and not self.robot_parser.can_fetch('*', self.url)
+        return self.use_robots and self.robot_parser and not self.robot_parser.can_fetch('*', self.url)
     
     async def close(self):
         await self.session.close()
 
     async def working(self):
         log.info('Start working')
-        try:
-            while True:
+        while True:
+            try:
                 await self.get_task()
                 log.info('Got task %s', self.task)
                 if (await self.is_invalid_task()):
@@ -191,6 +220,6 @@ class Spider:
                 log.info('Created results')
                 if self.stop:
                     break
-        finally:
-            await self.close()
+            except Exception as e:
+                log.error(e, exc_info=True)
     
