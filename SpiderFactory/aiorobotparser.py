@@ -1,7 +1,6 @@
 #!/bin/env python3
 #-*- coding: utf-8 -*-
 import aiohttp
-import asyncio
 
 from urllib import robotparser
 

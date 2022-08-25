@@ -1,0 +1,6 @@
+.venv/
+__pycache__/
+*.pyc
+bitnami/kafka/*
+bitnami/redis/*
+bitnami/zookeeper/*

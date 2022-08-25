@@ -5,11 +5,12 @@ from multiprocessing import Process
 from workshop import Workshop
 
 class Factoty:
-    def __init__(self, num_workshops=1):
-        self.workshops = [Process(target=self.start_workshop) for i in range(num_workshops)]
+    def __init__(self, num_workshop=1, num_spider=2):
+        self.num_spider = num_spider
+        self.workshops = [Process(target=self.start_workshop) for _ in range(num_workshop)]
 
     def start_workshop(self):
-        workshop = Workshop()
+        workshop = Workshop(self.num_spider)
         asyncio.run(workshop.run())
 
     def run(self):
@@ -19,6 +20,6 @@ class Factoty:
             workshop.join()
 
 if __name__ == '__main__':
-    factory = Factoty(2)
+    factory = Factoty()
     factory.run()
 

@@ -2,9 +2,9 @@
 #-*- coding: utf-8 -*-
 import asyncio
 
-async def generate(url, raw):
+async def match(url, raw):
     print(url)
     await asyncio.sleep(0)
     print(raw)
-    return set(), set()
+    return set()
 

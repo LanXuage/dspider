@@ -1,7 +1,7 @@
 #!/bin/env python3
 # -*- coding: utf-8 -*-
-import aioredis
 import asyncio
+import aioredis
 
 from spider import Spider
 from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
@@ -9,8 +9,8 @@ from config import KAFKA_SERVERS, SASL_MECHANISM, SASL_PLAIN_USERNAME, SASL_PLAI
 
 
 class Workshop:
-    def __init__(self, num_spiders=3):
-        self.num_spiders = 3
+    def __init__(self, num_spider=2):
+        self.num_spider = num_spider
         self.stop = False
 
     async def get_redis(self):
@@ -48,31 +48,33 @@ class Workshop:
         await self.consumer.start()
 
     async def run(self):
-        await self.get_redis()
-        await self.get_producer()
-        await self.get_consumer()
-        print(self.redis)
-        print(self.producer)
-        print(self.consumer)
-        self.spiders = []
-        self.spider_coroutines= []
-        for _ in range(self.num_spiders):
-            spider = Spider(
-                self.consumer, 
-                self.producer, 
-                self.redis, 
-                TASK_TOPIC_NAME, 
-                RESULT_TOPIC_NAME, 
-                OLD_URLS_KEY
-            ) 
-            self.spiders.append(spider)
-            self.spider_coroutines.append(spider.working())
-        asyncio.gather(*self.spider_coroutines)
-        while True:
-            await asyncio.sleep(1)
-            if self.stop:
-                break
-        await self.close()
+        try:
+            await self.get_redis()
+            await self.get_producer()
+            await self.get_consumer()
+            print(self.redis)
+            print(self.producer)
+            print(self.consumer)
+            self.spiders = []
+            self.spider_coroutines= []
+            for _ in range(self.num_spider):
+                spider = Spider(
+                    self.consumer, 
+                    self.producer, 
+                    self.redis, 
+                    TASK_TOPIC_NAME, 
+                    RESULT_TOPIC_NAME, 
+                    OLD_URLS_KEY
+                ) 
+                self.spiders.append(spider)
+                self.spider_coroutines.append(spider.working())
+            asyncio.gather(*self.spider_coroutines)
+            while True:
+                await asyncio.sleep(1)
+                if self.stop:
+                    break
+        finally:
+            await self.close()
 
     async def close(self):
         await self.producer.stop()

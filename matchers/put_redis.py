@@ -11,9 +11,9 @@ async def main():
         username=REDIS_USERNAME,
         password=REDIS_PASSWORD
     )
-    with open('generators/ahrefgenerator.py', 'rb') as f:
-        code = compile(f.read(), filename='ahrefgenerator.py', mode='exec')
-        await redis.set('generator_id', marshal.dumps(code))
+    with open('matchers/testmatcher.py', 'rb') as f:
+        code = compile(f.read(), filename='testmatcher.py', mode='exec')
+        await redis.set('matcher_id', marshal.dumps(code))
         await redis.close()
 
 asyncio.run(main())
