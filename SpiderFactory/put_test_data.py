@@ -56,11 +56,15 @@ async def send():
             "use_tor": False,
             "use_proxy": False,
             "matcher": "matcher_id", # required
+            "matcher_cfg": "{}",
             "generator": "generator_id", # required
+            "generator_cfg": "{}",
             "exporter": "exporter_id",
+            "exporter_cfg": "{}",
             "is_periodic": False,
             "task_status": 0, # 0 未开始，1 执行中，2 已结束
-            "cron_expn": "* */4 * * *",
+            "cron_expn": "0 */4 * * *",
+            "req_interval": "15", # 单位s
             "start_time": "2022-08-23 16:50", # must with timezone
             "update_time": "2022-08-23 16:35",
             "create_time": "2022-08-23 16:35"
@@ -71,8 +75,10 @@ async def send():
             "method": "POST",
             "headers": json.dumps(headers),
             "payload": base64.b64encode(json.dumps(payload).encode()).decode(),
-            "matcher": "matcher_id",
-            "generator": "jizhile"
+            "matcher": "json",
+            "generator": "arithmetic",
+            "generator_cfg": '{"type": "payload", "re_an_1": "InBhZ2UiOlxzKihcZCspLA==", "re_an_1_group": 1, "d": 1, "match": "InBhZ2UiOlxzKihcZCspLA==", "replace": "InBhZ2UiOiB7e2FufX0s"}',
+            "req_interval": 15, # 单位s
         }
         await producer.send_and_wait(TASK_TOPIC_NAME, json.dumps(jizhile_task).encode())
         log.info('Publish task done. ')

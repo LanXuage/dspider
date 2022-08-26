@@ -2,9 +2,11 @@
 #-*- coding: utf-8 -*-
 import asyncio
 
-async def generate(url, payload, raw):
-    print(url)
+from common.net import Request, Response
+
+async def generate(cfg : dict, req : Request, resp : Response):
+    print(req.url)
     await asyncio.sleep(0)
-    print(raw)
+    print(resp.raw)
     return {{'url': 'url', 'method': 'GET', 'headers': '{"key":"value"}'}}, {"old_url"}
 

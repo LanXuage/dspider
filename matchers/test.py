@@ -2,9 +2,11 @@
 #-*- coding: utf-8 -*-
 import asyncio
 
-async def match(url, raw):
-    print(url)
+from common.net import Request, Response
+
+async def match(cfg : dict, req : Request, resp : Response):
+    print(req.url)
     await asyncio.sleep(0)
-    print(raw)
-    return set()
+    print(resp.raw)
+    return []
 
