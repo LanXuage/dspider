@@ -4,3 +4,4 @@ __pycache__/
 bitnami/kafka/*
 bitnami/redis/*
 bitnami/zookeeper/*
+.back_dspider/

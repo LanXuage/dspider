@@ -76,9 +76,10 @@ async def send():
             "headers": json.dumps(headers),
             "payload": base64.b64encode(json.dumps(payload).encode()).decode(),
             "matcher": "json",
+            "matcher_cfg": '{"type": "more", "map": {"username": "qrcode:username=(gh_.*?)([^a-z0-9]|$):1", "nickname": "mp_name", "aliasname": "wxid", "register_body": "zhuti", "signature": "desc", "head_img": "avatar:fileb64e", "doc_id": "biz:b64d"}, "item": "data.accounts", "add": {"type": "wechat_oaccount", "appid": ""}}',
             "generator": "arithmetic",
             "generator_cfg": '{"type": "payload", "re_an_1": "InBhZ2UiOlxzKihcZCspLA==", "re_an_1_group": 1, "d": 1, "match": "InBhZ2UiOlxzKihcZCspLA==", "replace": "InBhZ2UiOiB7e2FufX0s"}',
-            "req_interval": 15, # 单位s
+            "req_interval": 15,
         }
         await producer.send_and_wait(TASK_TOPIC_NAME, json.dumps(jizhile_task).encode())
         log.info('Publish task done. ')

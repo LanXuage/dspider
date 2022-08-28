@@ -12,9 +12,11 @@ import marshal
 
 sys.path.append('.')
 from time import time
+from aioredis import Redis
 from common.helpers import is_url
 from common.net import Request, Response
 from aiorobotparser import AIORobotFileParser
+from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 
 
 log = logging.getLogger(__name__)
@@ -22,12 +24,12 @@ log = logging.getLogger(__name__)
 class Spider:
     def __init__(
             self, 
-            consumer, 
-            producer, 
-            redis, 
-            task_topic_name, 
-            result_topic_name, 
-            old_urls_key,
+            consumer : AIOKafkaConsumer, 
+            producer : AIOKafkaProducer, 
+            redis : Redis, 
+            task_topic_name : str, 
+            result_topic_name : str, 
+            old_urls_key : str,
             timeout=30,
             headers={'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.63 Safari/537.36 Edg/93.0.961.47'}
         ):
@@ -86,9 +88,12 @@ class Spider:
             await self.redis.sadd(self.old_urls_key, old_req.get_req_hash())
 
     async def deliver_result(self, result):
-        result['id'] = self.task.get('id')
-        log.info('Result %s', result)
-        await self.producer_send(self.result_topic_name, result)
+        result_out = {
+            'id': self.task.get('id'),
+            'value': result
+        }
+        log.info('Result %s', result_out)
+        await self.producer_send(self.result_topic_name, result_out)
 
     async def deliver_results(self, results):
         for result in results:

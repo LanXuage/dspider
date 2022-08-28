@@ -17,6 +17,7 @@ from common.net import Request, Response
 # match : 正则, base64
 # replace : 替换被match匹配到的部分，可使用{{an}}来插入当前项的值, base64
 async def generate(cfg : dict, req : Request, resp : Response):
+    print(resp.raw)
     t = cfg.get('type')
     if t == 'url':
         next_url = get_next(cfg, req.url.encode())
