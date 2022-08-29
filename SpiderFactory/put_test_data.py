@@ -64,7 +64,7 @@ async def send():
             "is_periodic": False,
             "task_status": 0, # 0 未开始，1 执行中，2 已结束
             "cron_expn": "0 */4 * * *",
-            "req_interval": "15", # 单位s
+            "req_interval": 15, # 单位s
             "start_time": "2022-08-23 16:50", # must with timezone
             "update_time": "2022-08-23 16:35",
             "create_time": "2022-08-23 16:35"
