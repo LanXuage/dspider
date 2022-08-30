@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-    import LoginForm from '../components/LoginForm.vue'
+import LoginForm from '../components/LoginForm.vue'
 </script>
 <template>
     <div class="container">
@@ -7,23 +7,25 @@
     </div>
 </template>
 <script lang="ts">
-    export default {
-        name: "Login"
-    }
+export default {
+    name: "Login"
+}
 </script>
 <style lang="scss">
-    .container {
-        width: 100vw;
-        height: 100vh;
-        background-color: cyan;
-        display: flex;
-        justify-content: right;
-        align-items: center;
-        .login {
-            padding: 35px;
-            margin-right: 15vw;
-            background-color: white;
-            border-radius: 6px;
-        }
+.container {
+    width: 100vw;
+    height: 100vh;
+    background-color: gray;
+    display: flex;
+    justify-content: right;
+    align-items: center;
+
+    .login {
+        padding: 65px 35px;
+        margin-right: 15vw;
+        background-color: white;
+        border-radius: 6px;
+        opacity: 0.5;
     }
+}
 </style>

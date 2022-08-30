@@ -80,9 +80,9 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'dspider',
         'HOST': '127.0.0.1',
-        'PORT': 5432,
+        'PORT': 65432,
         'USER': 'postgres',
-        'PASSWORD': 'example'
+        'PASSWORD': '7URL8rCIbJNNKq'
     }
 }
 
