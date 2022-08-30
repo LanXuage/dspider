@@ -1,6 +1,9 @@
+<script lang="ts" setup>
+    import LoginForm from '../components/LoginForm.vue'
+</script>
 <template>
     <div class="container">
-        <div class="login"></div>
+        <LoginForm class="login"></LoginForm>
     </div>
 </template>
 <script lang="ts">
@@ -17,9 +20,8 @@
         justify-content: right;
         align-items: center;
         .login {
+            padding: 35px;
             margin-right: 15vw;
-            width: 400px;
-            height: 350px;
             background-color: white;
             border-radius: 6px;
         }
