@@ -44,7 +44,7 @@ class Req {
             if (error.code == AxiosError.ERR_NETWORK) {
                 Msg.error(error.message)
             } else {
-                reject(error)
+                reject(error as AxiosError)
             }
         }))
     }

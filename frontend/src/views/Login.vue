@@ -21,7 +21,7 @@ export default {
     align-items: center;
 
     .login {
-        padding: 65px 35px;
+        padding: 75px 25px 25px 25px;
         margin-right: 15vw;
         background-color: white;
         border-radius: 6px;
