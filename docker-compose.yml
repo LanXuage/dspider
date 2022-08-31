@@ -72,6 +72,15 @@ services:
       dspider:
         aliases:
         - 'redis'
+  pgsql:
+    image: 'postgres:14.5'
+    container_name: 'dspider_pgsql'
+    ports:
+    - '65432:5432'
+    volumes:
+    - './bitnami/pgsql:/var/lib/postgresql/data'
+    environment:
+      POSTGRES_PASSWORD: '7URL8rCIbJNNKq'
 networks:
   dspider:
     name: 'dspider'

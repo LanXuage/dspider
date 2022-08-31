@@ -8,7 +8,9 @@
                 show-password />
         </el-form-item>
         <el-form-item>
-            <el-button type="primary" @click="submitForm(userDataRef)">Login</el-button>
+            <el-button type="primary" @click="submitForm(userDataRef)" :loading-icon="Eleme" :loading="logining"
+                :disabled="logining">Login
+            </el-button>
         </el-form-item>
     </el-form>
 </template>
@@ -16,11 +18,15 @@
 <script lang="ts" setup>
 import { reactive, ref } from 'vue'
 import type { FormInstance } from 'element-plus'
+import { Eleme } from '@element-plus/icons-vue'
 
-import { User } from '../api/models'
-import { Msg } from '../utils/msg'
+import { useRouter } from 'vue-router'
+
+import { User } from '@/api/user'
 
 const userDataRef = ref<FormInstance>()
+
+const router = useRouter()
 
 const validatePass = (rule: any, value: any, callback: any) => {
     if (value === '') {
@@ -47,24 +53,25 @@ const userData = reactive({
     password: '',
 })
 
+const logining = ref(false)
+
 const rules = reactive({
     username: [{ validator: validateUname, trigger: 'blur' }],
     password: [{ validator: validatePass, trigger: 'blur' }],
 })
 
 const submitForm = (formEl: FormInstance | undefined) => {
+    logining.value = true
     if (!formEl) return
     formEl.validate(async (valid) => {
         if (valid) {
-            var user = new User(userData.username, userData.password)
+            let user = new User(userData)
             if (await user.login()) {
-                sessionStorage.setItem('user', JSON.stringify(user))
-                Msg.success('登录成功！')
+                router.push('/')
             } else {
-                console.log('aaaa')
+                logining.value = false
             }
         } else {
-            console.log('error submit!')
             return false
         }
     })

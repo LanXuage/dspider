@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import LoginForm from '../components/LoginForm.vue'
+import LoginForm from '@/components/LoginForm.vue'
 </script>
 <template>
     <div class="container">
@@ -25,7 +25,6 @@ export default {
         margin-right: 15vw;
         background-color: white;
         border-radius: 6px;
-        opacity: 0.5;
     }
 }
 </style>
