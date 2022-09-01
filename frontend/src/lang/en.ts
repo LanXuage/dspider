@@ -4,5 +4,7 @@ export default {
     password: 'PASSWORD',
     pleaseInputPass: 'Please input password',
     login: 'Login',
-    loginSuccess: 'Login successfully! '
+    logingin: 'Loging in',
+    loginSuccess: 'Login successfully! ',
+    incorrectUnameOrPass: 'Incorrect user name or password! '
 }

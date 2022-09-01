@@ -6,11 +6,6 @@ import LoginForm from '@/components/LoginForm.vue'
         <LoginForm class="login"></LoginForm>
     </div>
 </template>
-<script lang="ts">
-export default {
-    name: "Login"
-}
-</script>
 <style lang="scss">
 .container {
     width: 100vw;
@@ -21,7 +16,7 @@ export default {
     align-items: center;
 
     .login {
-        padding: 75px 25px 25px 25px;
+        padding: 75px 25px 35px 25px;
         margin-right: 15vw;
         background-color: white;
         border-radius: 6px;

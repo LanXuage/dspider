@@ -29,4 +29,4 @@ class Msg {
     }
 }
 
-export { Msg }
+export default Msg

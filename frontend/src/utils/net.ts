@@ -2,7 +2,7 @@ import axios, { AxiosError } from 'axios'
 import NProgress from 'nprogress'
 
 import 'nprogress/nprogress.css'
-import { Msg } from './msg';
+import Msg from './msg';
 
 class Req {
     private static instance = axios.create({
@@ -44,7 +44,7 @@ class Req {
             if (error.code == AxiosError.ERR_NETWORK) {
                 Msg.error(error.message)
             } else {
-                reject(error as AxiosError)
+                reject(error)
             }
         }))
     }
@@ -53,4 +53,4 @@ class Req {
 
 Req.init()
 
-export { Req }
+export default Req

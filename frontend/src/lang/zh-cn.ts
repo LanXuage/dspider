@@ -4,5 +4,7 @@ export default {
     password: '密码',
     pleaseInputPass: '请输入密码',
     login: '登录',
-    loginSuccess: '登录成功！'
+    logingin: '登录中',
+    loginSuccess: '登录成功！',
+    incorrectUnameOrPass: '用户名或密码错误！'
 }

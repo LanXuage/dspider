@@ -1,18 +1,18 @@
 import i18n from '@/lang'
-import { Msg } from '@/utils/msg'
-import { Req } from '@/utils/net'
+import { useAuthUserStore } from '@/stores'
+import { Msg, Req } from '@/utils'
 import { AxiosError } from 'axios'
 import { Base64 } from 'js-base64'
 
 
 class User {
+    private id: number
     private username: string
-    private password: string
     private token: string
 
-    constructor({ username, password }: { username: string, password: string }) {
+    constructor(username: string) {
+        this.id = 0
         this.username = username
-        this.password = password
         this.token = ''
     }
 
@@ -20,15 +20,31 @@ class User {
         return this.token
     }
 
-    async login(): Promise<boolean> {
+    static encode(user: User): string {
+        return Base64.encode(JSON.stringify(user))
+    }
+
+    static decode(userEnc: string): User {
+        return Object.assign(new User(''), JSON.parse(Base64.decode(userEnc)))
+    }
+
+    static getUser(): User {
+        let userEnc = sessionStorage.getItem('user')
+        if (userEnc) {
+            return User.decode(userEnc)
+        }
+        return new User('')
+    }
+
+    async login(password: string): Promise<boolean> {
         try {
             let { token } = await Req.post('api-token-auth/', {
                 username: this.username,
-                password: this.password
+                password: password
             })
             this.token = token
-            this.password = ''
-            sessionStorage.setItem('user', Base64.encode(JSON.stringify(this)))
+            sessionStorage.setItem('user', User.encode(this))
+            useAuthUserStore().setUser(this)
             Req.setToken(this.token)
             Msg.success(i18n.global.t('loginSuccess'))
             return true
@@ -36,7 +52,7 @@ class User {
             if (error instanceof AxiosError && error.code == AxiosError.ERR_BAD_RESPONSE) {
                 Msg.error(error.message)
             } else {
-                Msg.warning('用户名或密码错误！')
+                Msg.warning(i18n.global.t('incorrectUnameOrPass'))
             }
             return false
         }
@@ -44,4 +60,4 @@ class User {
 
 }
 
-export { User }
+export default User
