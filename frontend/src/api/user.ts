@@ -24,16 +24,13 @@ class User {
         return Base64.encode(JSON.stringify(user))
     }
 
-    static decode(userEnc: string): User {
-        return Object.assign(new User(''), JSON.parse(Base64.decode(userEnc)))
+    static decode(userEnc: string | null): User {
+        return userEnc ? Object.assign(new User(''), JSON.parse(Base64.decode(userEnc))) : new User('')
     }
 
-    static getUser(): User {
+    static getUserEnc(): string {
         let userEnc = sessionStorage.getItem('user')
-        if (userEnc) {
-            return User.decode(userEnc)
-        }
-        return new User('')
+        return userEnc ? userEnc : ''
     }
 
     async login(password: string): Promise<boolean> {
@@ -43,8 +40,9 @@ class User {
                 password: password
             })
             this.token = token
-            sessionStorage.setItem('user', User.encode(this))
-            useAuthUserStore().setUser(this)
+            let userEnc = User.encode(this)
+            const authUser = useAuthUserStore()
+            authUser.setUser(userEnc)
             Req.setToken(this.token)
             Msg.success(i18n.global.t('loginSuccess'))
             return true
