@@ -1,19 +1,20 @@
 import { User } from '@/api'
+import { Cypher } from '@/utils'
 import { defineStore } from 'pinia'
 
 const useAuthUserStore = defineStore({
     id: 'authUser',
     state: () => ({
-        user: sessionStorage.getItem('user')
+        userEnc: sessionStorage.getItem('user')
     }),
     getters: {
-        getToken: (state) => User.decode(state.user).getToken(),
-        getUser: (state) => (state.user)
+        user: (state) => Cypher.decode<User>(state.userEnc, User),
+        token: (state) => Cypher.decode<User>(state.userEnc, User).token,
     },
     actions: {
-        setUser(userEnc: string) {
-            this.user = userEnc
-            sessionStorage.setItem('user', userEnc)
+        setUser(user: User) {
+            this.userEnc = Cypher.encode(user)
+            sessionStorage.setItem('user', this.userEnc)
         }
     }
 })

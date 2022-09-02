@@ -3,7 +3,6 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 import 'nprogress/nprogress.css'
 import { useAuthUserStore } from '@/stores'
-import { User } from '@/api'
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -19,11 +18,17 @@ const router = createRouter({
     ]
 })
 
+let loggedInBlacklist = ['/login']
+
 router.beforeEach((to, from, next) => {
     NProgress.start()
     const authUser = useAuthUserStore()
-    if (authUser.getToken) {
-        next()
+    if (authUser.token) {
+        if (loggedInBlacklist.includes(to.path)) {
+            next(from)
+        } else {
+            next()
+        }
     } else {
         if (to.matched.length > 0 && !to.matched.some(record => record.meta.requiresAuth)) {
             next()
