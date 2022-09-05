@@ -2,11 +2,23 @@
     <el-form @keyup.enter.native="submitForm(formDataRef)" ref="formDataRef" :model="formData" status-icon
         :rules="rules" label-width="120px" class="demo-formData">
         <el-form-item :label="$t('username')" prop="username">
-            <el-input v-model="formData.username" autocomplete="off" :placeholder="$t('pleaseInputUname')" />
+            <el-input v-model="formData.username" autocomplete="off" :placeholder="$t('pleaseInputUname')">
+                <template #prefix>
+                    <el-icon>
+                        <User />
+                    </el-icon>
+                </template>
+            </el-input>
         </el-form-item>
         <el-form-item :label="$t('password')" prop="password">
             <el-input v-model="formData.password" type="password" autocomplete="off"
-                :placeholder="$t('pleaseInputPass')" show-password />
+                :placeholder="$t('pleaseInputPass')" show-password>
+                <template #prefix>
+                    <el-icon>
+                        <Lock />
+                    </el-icon>
+                </template>
+            </el-input>
         </el-form-item>
         <el-form-item>
             <el-button type="primary" @click="submitForm(formDataRef)" :loading-icon="Eleme"
@@ -20,12 +32,12 @@
 <script lang="ts" setup>
 import { reactive, ref } from 'vue'
 import type { FormInstance } from 'element-plus'
-import { Eleme } from '@element-plus/icons-vue'
+import { Eleme, User, Lock } from '@element-plus/icons-vue'
 
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 
-import { User } from '@/api'
+import { useAuthUserStore } from '@/stores'
 
 const formDataRef = ref<FormInstance>()
 
@@ -70,8 +82,8 @@ const submitForm = (formEl: FormInstance | undefined) => {
     formEl.validate(async (valid) => {
         if (valid) {
             formData.logingin = true
-            let user = new User(formData.username)
-            if (await user.login(formData.password)) {
+            const authUser = useAuthUserStore()
+            if (await authUser.login(formData)) {
                 router.push('/')
             } else {
                 formData.logingin = false

@@ -1,6 +1,7 @@
 import { User } from '@/api'
-import { Cypher } from '@/utils'
+import { Cypher, Route } from '@/utils'
 import { defineStore } from 'pinia'
+import type { RouteRecordRaw } from 'vue-router'
 
 const useAuthUserStore = defineStore({
     id: 'authUser',
@@ -15,6 +16,15 @@ const useAuthUserStore = defineStore({
         setUser(user: User) {
             this.userEnc = Cypher.encode(user)
             sessionStorage.setItem('user', this.userEnc)
+        },
+        async login({ username, password }: { username: string, password: string }): Promise<boolean> {
+            let user = new User(username)
+            let ret = await user.login(password)
+            this.setUser(user)
+            return ret
+        },
+        getRoute(): Array<RouteRecordRaw> {
+            return Route.getRoutes(this.user)
         }
     }
 })

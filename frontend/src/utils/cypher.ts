@@ -6,7 +6,7 @@ class Cypher {
         return Base64.encode(JSON.stringify(user))
     }
 
-    static decode<T>(userEnc: string | null, c: { new(): T }): T {
+    static decode<T extends Object>(userEnc: string | null, c: { new(): T }): T {
         return userEnc ? Object.assign(new c(), JSON.parse(Base64.decode(userEnc))) : new c()
     }
 }

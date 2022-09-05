@@ -1,5 +1,5 @@
 <template>
-    Index
+    About
 </template>
 <style lang="scss">
 </style>

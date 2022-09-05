@@ -17,13 +17,14 @@ Including another URLconf
 from ds import views
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from rest_framework.authtoken.views import obtain_auth_token
 
 router = DefaultRouter()
 router.register(r'task', views.TaskViewSet)
 router.register(r'user', views.UserViewSet)
+router.register(r'permission', views.PermissionViewSet)
+router.register(r'page', views.PageViewSet)
 
 urlpatterns = [
     path(r'api/', include(router.urls)),
-    path(r'api-token-auth/', obtain_auth_token)
+    path(r'api-token-auth/', views.AuthView.as_view())
 ]
