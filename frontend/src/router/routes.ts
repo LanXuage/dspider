@@ -16,6 +16,14 @@ const routesMap: { [key: string]: RouteRecordRaw } = {
         meta: {
             requiresAuth: true
         }
+    },
+    pages_task_center: {
+        path: 'task',
+        name: 'pages_task_center',
+        component: () => import('@/pages/TaskCenter.vue'),
+        meta: {
+            requiresAuth: true
+        }
     }
 }
 export default routesMap

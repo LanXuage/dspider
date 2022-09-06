@@ -16,14 +16,6 @@ const router = createRouter({
             }
         },
         {
-            path: '/:pathMatch(.*)*',
-            name: 'NotFound',
-            component: () => import('@/pages/NotFound.vue'),
-            meta: {
-                requiresAuth: false
-            }
-        },
-        {
             path: '/',
             name: 'Home',
             component: () => import('@/pages/Layout.vue'),
@@ -46,6 +38,7 @@ const router = createRouter({
 })
 
 let loggedInBlacklist = ['/login']
+let noAddRoute = true
 
 router.beforeEach((to, from, next) => {
     NProgress.start()
@@ -53,8 +46,20 @@ router.beforeEach((to, from, next) => {
     if (authUser.token) {
         if (loggedInBlacklist.includes(to.path)) {
             next(from)
-        } else {
+        } else if(noAddRoute) {
             authUser.getRoute().forEach(route => router.addRoute('Home', route))
+            router.addRoute({
+                path: '/:pathMatch(.*)*',
+                name: 'NotFound',
+                component: () => import('@/pages/NotFound.vue'),
+                meta: {
+                    requiresAuth: false
+                }
+            })
+            noAddRoute = false
+            next(to)
+        } else {
+            noAddRoute = true
             next()
         }
     } else {
