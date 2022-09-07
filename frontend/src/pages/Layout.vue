@@ -4,16 +4,17 @@
             <el-header class="header">
                 <el-menu active-text-color="#fff" background-color="#545c64" text-color="#fff" class="el-menu"
                     mode="horizontal" :ellipsis="false" @select="handleSelect">
-                    <el-radio-group v-model="isCollapse">
-                        <el-radio-button :label="false">expand</el-radio-button>
-                        <el-radio-button :label="true">collapse</el-radio-button>
-                    </el-radio-group>
-                    <el-menu-item index="1">LOGO</el-menu-item>
+                    <el-menu-item index="" @click="isCollapse=!isCollapse">
+                        <el-icon>
+                            <Expand v-if="isCollapse" />
+                            <Fold v-else />
+                        </el-icon>
+                    </el-menu-item>
+                    <el-menu-item index="1">DSPIDER</el-menu-item>
                     <div class="flex-grow" />
                     <el-sub-menu index="2"><template #title>Lang</template>
                         <el-menu-item index="2-1">中文</el-menu-item>
                         <el-menu-item index="2-2">English</el-menu-item>
-                        <el-menu-item index="2-3">Others</el-menu-item>
                     </el-sub-menu>
                 </el-menu>
             </el-header>
@@ -46,7 +47,6 @@
                     <el-main>
                         <router-view></router-view>
                     </el-main>
-                    <el-footer>Footer</el-footer>
                 </el-container>
             </el-container>
         </el-container>
@@ -57,6 +57,7 @@
 import { ref } from 'vue'
 import {
     Fold,
+    Expand,
     Monitor,
     Odometer,
     InfoFilled
@@ -73,10 +74,15 @@ const handleClose = (key: string, keyPath: string[]) => {
 const handleSelect = (key: string) => {
     console.log(key)
 }
+const changeIsCollapse = (key: string) => {
+    console.log(key)
+    isCollapse.value = !isCollapse.value
+}
 </script>
 
 <style lang="scss">
 .header {
+    min-height: 56px;
     height: 6vh;
     padding: 0;
 
@@ -85,6 +91,7 @@ const handleSelect = (key: string) => {
     }
 
     .el-menu {
+        min-height: 56px;
         height: 6vh;
     }
 
@@ -101,5 +108,17 @@ const handleSelect = (key: string) => {
     }
 
     width: auto;
+}
+
+.el-main {
+    height: 94vh;
+}
+
+.el-menu--horizontal>.el-menu-item.is-active {
+    border-bottom: 0;
+}
+
+.el-menu--horizontal>.el-menu-item {
+    border-bottom: 0;
 }
 </style>
