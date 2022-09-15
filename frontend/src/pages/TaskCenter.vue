@@ -69,7 +69,7 @@ import { Check, Close } from '@element-plus/icons-vue'
 
 const form = reactive({
     url: '',
-    method: '',
+    method: 'GET',
     headers: '',
     payload: '',
     timeout: 15,

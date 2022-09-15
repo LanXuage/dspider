@@ -20,9 +20,6 @@ services:
   kafka:
     image: 'bitnami/kafka:2.8.1'
     container_name: 'dspider_kafka'
-    hostname: 'dspider_kafka'
-    ports:
-      - '9093:9093'
     volumes:
       - './bitnami/kafka:/bitnami/kafka:rw'
       - './certs/server.keystore.jks:/opt/bitnami/kafka/config/certs/kafka.keystore.jks:ro'
@@ -51,6 +48,7 @@ services:
       KAFKA_CERTIFICATE_PASSWORD: 'eeduuNguVah9'
     depends_on:
       - 'zookeeper'
+    restart: 'always'
     networks:
       dspider:
         aliases:
@@ -62,12 +60,15 @@ services:
       - '6379:6379'
     volumes:
       - './bitnami/redis:/data:rw'
+    environment:
+      TZ: '$TZ'
     command:
       - 'redis-server'
       - '--appendonly'
       - 'yes'
       - '--requirepass'
       - 'Vah7ahWae1Ke'
+    restart: 'always'
     networks:
       dspider:
         aliases:
@@ -80,7 +81,79 @@ services:
     volumes:
       - './bitnami/pgsql:/var/lib/postgresql/data:rw'
     environment:
+      TZ: '$TZ'
       POSTGRES_PASSWORD: '7URL8rCIbJNNKq'
+    restart: 'always'
+    networks:
+      dspider:
+        aliases:
+          - 'pgsql'
+  scheduler:
+    build: './scheduler'
+    image: 'dspider/scheduler:1.0'
+    container_name: 'dspider_scheduler'
+    volumes:
+      - './scheduler:/usr/src/app:ro'
+    environment:
+      TZ: '$TZ'
+    depends_on:
+      - 'kafka'
+      - 'redis'
+    restart: 'always'
+    networks:
+      dspider:
+        aliases:
+          - 'scheduler'
+  spiders:
+    build: './SpiderFactory'
+    image: 'dspider/spiders:1.0'
+    container_name: 'dspider_spiders'
+    volumes:
+      - './SpiderFactory:/usr/src/app:ro'
+    environment:
+      TZ: '$TZ'
+    depends_on:
+      - 'kafka'
+      - 'redis'
+    restart: 'always'
+    networks:
+      dspider:
+        aliases:
+          - 'spiders'
+  backend:
+    build: './backend'
+    image: 'dspider/backend:1.0'
+    container_name: 'dspider_backend'
+    ports:
+      - '8000:8000'
+    volumes:
+      - './backend:/usr/src/app:ro'
+    environment:
+      TZ: '$TZ'
+    depends_on:
+      - 'pgsql'
+    restart: 'always'
+    networks:
+      dspider:
+        aliases:
+          - 'backend'
+  frontend:
+    image: 'nginx:1.23.1-alpine'
+    container_name: 'dspider_frontend'
+    ports:
+      - '3000:80'
+    volumes:
+      - './frontend/dist:/usr/share/nginx/html:ro'
+      - './frontend/default.conf:/etc/nginx/conf.d/default.conf:ro'
+    environment:
+      TZ: '$TZ'
+    depends_on:
+      - 'backend'
+    restart: 'always'
+    networks:
+      dspider:
+        aliases:
+          - 'frontend'
 networks:
   dspider:
     name: 'dspider'

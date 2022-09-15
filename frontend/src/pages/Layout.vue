@@ -19,7 +19,7 @@
                 </el-menu>
             </el-header>
             <el-container>
-                <el-aside class="aside">
+                <el-aside width="collapse">
                     <el-menu active-text-color="#ffd04b" background-color="#545c64" text-color="#fff"
                         :default-active="$route.path.substring(1)" class="el-menu" :collapse="isCollapse"
                         @open="handleOpen" @close="handleClose" router>
@@ -74,10 +74,6 @@ const handleClose = (key: string, keyPath: string[]) => {
 const handleSelect = (key: string) => {
     console.log(key)
 }
-const changeIsCollapse = (key: string) => {
-    console.log(key)
-    isCollapse.value = !isCollapse.value
-}
 </script>
 
 <style lang="scss">
@@ -95,19 +91,30 @@ const changeIsCollapse = (key: string) => {
         height: 6vh;
     }
 
+    .el-menu-item {
+        user-select: none;
+    }
+
     .el-menu--horizontal {
         border-bottom: 0;
     }
+
+    .el-icon {
+        margin: 0;
+    }
 }
 
-.aside {
+.el-aside {
     margin: 0;
 
     .el-menu {
         min-height: 94vh;
     }
 
-    width: auto;
+    .el-menu--vertical:not(.el-menu--collapse) {
+        width: 200px;
+    }
+
 }
 
 .el-main {

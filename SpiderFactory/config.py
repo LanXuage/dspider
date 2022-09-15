@@ -8,7 +8,7 @@ from aiokafka.helpers import create_ssl_context
 logging.basicConfig(level=logging.INFO)
 ### Kafka 配置 ###
 # ip:port 格式，多个使用,隔开
-KAFKA_SERVERS = 'localhost:9093'
+KAFKA_SERVERS = 'kafka:9093'
 # 是否检查证书域名合法性
 SSL_CHECK_HOSTNAME = False
 
@@ -38,7 +38,7 @@ COMPRESSION_TYPE = 'gzip'
 GROUP_ID = 'spiders'
 
 ### Redis 配置 ###
-REDIS_URL = 'redis://localhost:6379'
+REDIS_URL = 'redis://redis:6379'
 
 REDIS_USERNAME = 'default'
 
