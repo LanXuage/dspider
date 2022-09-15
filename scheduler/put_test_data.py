@@ -9,6 +9,7 @@ from config import KAFKA_SERVERS, RESULT_TOPIC_NAME, SASL_MECHANISM, SASL_PLAIN_
 
 log = logging.getLogger(__name__)
 
+
 async def send():
     producer = AIOKafkaProducer(
         bootstrap_servers=KAFKA_SERVERS,
@@ -22,7 +23,8 @@ async def send():
     )
     await producer.start()
     try:
-        jizhile_result = {'username': 'gh_406cd9af657e', 'nickname': '北京新闻', 'aliasname': 'brtvbjxw', 'register_body': '北京广播电视台', 'signature': '聚焦北京的新闻，着力报道热点民生；关心北京的事儿，时常发布实用信息；专注北京的生活，不断发放大小福利。无论是否身在北京，您需要来自北京的新闻！', 'head_img': 'http://mmbiz.qpic.cn/mmbiz_png/LCChw9N6UicdRoeibDg82mPebcm46nq9ian3CpoDHLsqLKajT6uNyC7UyuibwzQZpjNA377IqInO1bthpGsnzAuCJA/0?wx_fmt=png', 'doc_id': '3079855037', 'type': 'wechat_oaccount', 'appid': ''}
+        jizhile_result = {'username': 'gh_406cd9af657e', 'nickname': '北京新闻', 'aliasname': 'brtvbjxw', 'register_body': '北京广播电视台', 'signature': '聚焦北京的新闻，着力报道热点民生；关心北京的事儿，时常发布实用信息；专注北京的生活，不断发放大小福利。无论是否身在北京，您需要来自北京的新闻！',
+                          'head_img': 'http://mmbiz.qpic.cn/mmbiz_png/LCChw9N6UicdRoeibDg82mPebcm46nq9ian3CpoDHLsqLKajT6uNyC7UyuibwzQZpjNA377IqInO1bthpGsnzAuCJA/0?wx_fmt=png', 'doc_id': '3079855037', 'type': 'wechat_oaccount', 'appid': ''}
         jizhile_result_out = {
             'id': 1,
             'value': jizhile_result
@@ -33,6 +35,3 @@ async def send():
         await producer.stop()
 
 asyncio.run(send())
-
-
-

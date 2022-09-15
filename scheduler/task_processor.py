@@ -2,11 +2,12 @@
 # -*- coding: utf-8 -*-
 import json
 import asyncio
+import asyncpg
 
 from croniter import croniter
 from aiokafka import AIOKafkaProducer
 from datetime import datetime, timedelta
-from config import KAFKA_SERVERS, SASL_MECHANISM, SASL_PLAIN_USERNAME, SASL_PLAIN_PASSWORD, SECURITY_PROTOCOL, KAFKA_VERSION, TASK_TOPIC_NAME, COMPRESSION_TYPE, SSL_CONTEXT
+from config import KAFKA_SERVERS, SASL_MECHANISM, SASL_PLAIN_USERNAME, SASL_PLAIN_PASSWORD, SECURITY_PROTOCOL, KAFKA_VERSION, TASK_TOPIC_NAME, COMPRESSION_TYPE, SSL_CONTEXT, PG_DNAME, PG_UNAME, PG_PASSWD, PG_HOST, PG_PORT
 
 
 class TaskProcessor:
@@ -18,7 +19,9 @@ class TaskProcessor:
             self.use_api = True
         else:
             self.use_api = False
-        self.processings = [self.processing for _ in range(num_task_processor_async)]
+        self.tasks = [
+            self.processing() for _ in range(num_task_processor_async)]
+        self.pg_pool = None
 
     async def get_producer(self):
         self.producer = AIOKafkaProducer(
@@ -32,9 +35,15 @@ class TaskProcessor:
             compression_type=COMPRESSION_TYPE
         )
         await self.producer.start()
-    
+
+    async def get_pg_pool(self):
+        if not self.pg_pool:
+            self.pg_pool = await asyncpg.create_pool(database=PG_DNAME, user=PG_UNAME, password=PG_PASSWD, host=PG_HOST, port=PG_PORT)
+
     async def get_tasks_from_db(self):
-        pass
+        await self.get_pg_pool()
+        async with self.pg_pool.acquire() as conn:
+            return await conn.fetch('SELECT * FROM ds_task')
 
     async def get_tasks_from_api(self):
         pass
@@ -46,7 +55,7 @@ class TaskProcessor:
         return True
 
     async def is_need_to_run(self, task):
-        current_time = datetime.now()
+        current_time = datetime.now().astimezone()
         task_status = task.get('task_status')
         if task_status != 0:
             return False
@@ -56,7 +65,7 @@ class TaskProcessor:
             if iter.get_next(datetime) <= (current_time - timedelta(seconds=2)):
                 return True
         else:
-            start_time = task.get('start_time')
+            start_time = task.get('start_time').astimezone()
             if start_time >= (current_time - timedelta(minutes=1)) and start_time <= (current_time + timedelta(seconds=2)):
                 return True
         return False
@@ -72,12 +81,14 @@ class TaskProcessor:
             return await self.modify_task_status_to_api(task)
         else:
             return await self.modify_task_status_to_db(task)
-    
+
     async def publish_task(self, task):
-        required_keys = ['id', 'url', 'matcher', 'generator']
-        for k in task.keys():
-            if k not in required_keys:
+        required_keys = ['user_id', 'is_periodic', 'task_status', 'cron_expn', 'start_time', 'update_time', 'create_time', 'task_name']
+        for k in list(task.keys()):
+            if k in required_keys:
                 del task[k]
+        print('#######################')
+        print(task)
         await self.producer.send_and_wait(TASK_TOPIC_NAME, json.dumps(task).encode())
 
     async def processing(self):
@@ -89,17 +100,17 @@ class TaskProcessor:
                 if await self.is_need_to_run(task):
                     # 采用乐观锁，只有修改成功才算拿到任务。
                     if await self.modify_task_status(task):
-                        await self.publish_task(task)
+                        await self.publish_task(dict(task))
             await asyncio.sleep(60)
 
     async def run(self):
         await self.get_producer()
-        asyncio.gather(*self.processings)
+        asyncio.gather(*self.tasks)
         while True:
             await asyncio.sleep(1)
             if self.stop:
                 break
         await self.close()
-    
+
     async def close(self):
         await self.producer.close()

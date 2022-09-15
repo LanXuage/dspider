@@ -1,8 +1,9 @@
 #!/bin/env python3
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import aiohttp
 
 from urllib import robotparser
+
 
 class AIORobotFileParser(robotparser.RobotFileParser):
     async def read(self):
@@ -14,4 +15,3 @@ class AIORobotFileParser(robotparser.RobotFileParser):
                     self.allow_all = True
                 raw = await resp.read()
                 self.parse(raw.decode("utf-8").splitlines())
-

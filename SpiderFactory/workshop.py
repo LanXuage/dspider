@@ -10,6 +10,7 @@ from config import KAFKA_SERVERS, SASL_MECHANISM, SASL_PLAIN_USERNAME, SASL_PLAI
 
 log = logging.getLogger(__name__)
 
+
 class Workshop:
     def __init__(self, num_spider=2):
         self.num_spider = num_spider
@@ -18,7 +19,7 @@ class Workshop:
     async def get_redis(self):
         self.redis = await aioredis.from_url(
             REDIS_URL,
-            username=REDIS_USERNAME, 
+            username=REDIS_USERNAME,
             password=REDIS_PASSWORD
         )
 
@@ -58,16 +59,16 @@ class Workshop:
             log.info(self.producer)
             log.info(self.consumer)
             self.spiders = []
-            self.spider_coroutines= []
+            self.spider_coroutines = []
             for _ in range(self.num_spider):
                 spider = Spider(
-                    self.consumer, 
-                    self.producer, 
-                    self.redis, 
-                    TASK_TOPIC_NAME, 
-                    RESULT_TOPIC_NAME, 
+                    self.consumer,
+                    self.producer,
+                    self.redis,
+                    TASK_TOPIC_NAME,
+                    RESULT_TOPIC_NAME,
                     OLD_URLS_KEY
-                ) 
+                )
                 self.spiders.append(spider)
                 self.spider_coroutines.append(spider.working())
             asyncio.gather(*self.spider_coroutines, return_exceptions=True)

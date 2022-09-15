@@ -1,5 +1,5 @@
 #!/bin/env python3
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import logging
 
 from aiokafka.helpers import create_ssl_context
@@ -23,7 +23,8 @@ SECURITY_PROTOCOL = 'SASL_SSL'
 SSL_CAFILE = 'certs/caroot.pem'
 SSL_CERTFILE = 'certs/cert-signed.pem'
 SSL_KEYFILE = 'certs/cert.key'
-SSL_CONTEXT = create_ssl_context(cafile=SSL_CAFILE, certfile=SSL_CERTFILE, keyfile=SSL_KEYFILE)
+SSL_CONTEXT = create_ssl_context(
+    cafile=SSL_CAFILE, certfile=SSL_CERTFILE, keyfile=SSL_KEYFILE)
 SSL_CONTEXT.check_hostname = SSL_CHECK_HOSTNAME
 
 KAFKA_VERSION = '2.8.1'

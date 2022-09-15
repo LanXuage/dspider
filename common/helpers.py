@@ -1,10 +1,11 @@
 #!/bin/env python3
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import re
 
 from urllib.parse import urlparse, parse_qs
 
 re_match_url = re.compile(r'^https?://[\w.-/]+$')
+
 
 def preprocess_url(url):
     up = urlparse(url)
@@ -16,17 +17,20 @@ def preprocess_url(url):
         return '{}://{}{}'.format(up.scheme, up.netloc, up.path)
     return '{}://{}{}?{}'.format(up.scheme, up.netloc, up.path, new_query)
 
+
 def is_url(url):
     if re_match_url.match(url):
         return True
     else:
         return False
 
+
 def preprocess_list_or_set(k, los):
     ret = ''
     for i in sorted(los):
         ret += '{}={}&'.format(k, i)
     return ret.strip('&')
+
 
 def preprocess_dict(d):
     ret = ''
@@ -42,9 +46,8 @@ def preprocess_dict(d):
             v = '{}={}'.format(k, v)
         ret += v + '&'
     return ret.strip('&')
-        
+
 
 if __name__ == '__main__':
     print(preprocess_url('https://fanyi.baidu.com/?aldtype=16047&b=2233&b=1122'))
     print(preprocess_url('https://fanyi.baidu.com/?b=1122&b=2233&aldtype=16047'))
-

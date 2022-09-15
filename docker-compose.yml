@@ -4,7 +4,7 @@ services:
     image: 'bitnami/zookeeper:3.8'
     container_name: 'dspider_zookeeper'
     volumes:
-    - './bitnami/zookeeper:/bitnami/zookeeper:rw'
+      - './bitnami/zookeeper:/bitnami/zookeeper:rw'
     environment:
       TZ: '$TZ'
       ZOO_ENABLE_AUTH: 'yes'
@@ -16,17 +16,17 @@ services:
     networks:
       dspider:
         aliases:
-        - 'zookeeper'
+          - 'zookeeper'
   kafka:
     image: 'bitnami/kafka:2.8.1'
     container_name: 'dspider_kafka'
     hostname: 'dspider_kafka'
     ports:
-    - '9093:9093'
+      - '9093:9093'
     volumes:
-    - './bitnami/kafka:/bitnami/kafka:rw'
-    - './certs/server.keystore.jks:/opt/bitnami/kafka/config/certs/kafka.keystore.jks:ro'
-    - './certs/server.truststore.jks:/opt/bitnami/kafka/config/certs/kafka.truststore.jks:ro'
+      - './bitnami/kafka:/bitnami/kafka:rw'
+      - './certs/server.keystore.jks:/opt/bitnami/kafka/config/certs/kafka.keystore.jks:ro'
+      - './certs/server.truststore.jks:/opt/bitnami/kafka/config/certs/kafka.truststore.jks:ro'
     environment:
       TZ: '$TZ'
       KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: 'INTERNAL:SASL_SSL,CLIENT:SASL_SSL'
@@ -50,35 +50,35 @@ services:
       KAFKA_TLS_TYPE: 'JKS'
       KAFKA_CERTIFICATE_PASSWORD: 'eeduuNguVah9'
     depends_on:
-    - 'zookeeper'
+      - 'zookeeper'
     networks:
       dspider:
         aliases:
-        - 'kafka'
+          - 'kafka'
   redis:
     image: 'redis:7.0.4'
     container_name: 'dspider_redis'
     ports:
-    - '6379:6379'
+      - '6379:6379'
     volumes:
-    - './bitnami/redis:/data:rw'
+      - './bitnami/redis:/data:rw'
     command:
-    - 'redis-server'
-    - '--appendonly'
-    - 'yes'
-    - '--requirepass'
-    - 'Vah7ahWae1Ke'
+      - 'redis-server'
+      - '--appendonly'
+      - 'yes'
+      - '--requirepass'
+      - 'Vah7ahWae1Ke'
     networks:
       dspider:
         aliases:
-        - 'redis'
+          - 'redis'
   pgsql:
     image: 'postgres:14.5-alpine3.16'
     container_name: 'dspider_pgsql'
     ports:
-    - '65432:5432'
+      - '65432:5432'
     volumes:
-    - './bitnami/pgsql:/var/lib/postgresql/data:rw'
+      - './bitnami/pgsql:/var/lib/postgresql/data:rw'
     environment:
       POSTGRES_PASSWORD: '7URL8rCIbJNNKq'
 networks:

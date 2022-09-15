@@ -14,6 +14,7 @@ from connects_mgr import ConnectsManger
 
 log = logging.getLogger(__name__)
 
+
 class TaskReceiver:
     def __init__(self, num_task_receiver_async=1, api=None):
         self.api = api
@@ -21,7 +22,8 @@ class TaskReceiver:
             self.use_api = True
         else:
             self.use_api = False
-        self.tasks = [self.receivering() for _ in range(num_task_receiver_async)]
+        self.tasks = [self.receivering()
+                      for _ in range(num_task_receiver_async)]
         self.stop = False
         self.exporter = None
         self.exporter_id = None
@@ -31,7 +33,7 @@ class TaskReceiver:
     async def get_redis(self):
         self.redis = await aioredis.from_url(
             REDIS_URL,
-            username=REDIS_USERNAME, 
+            username=REDIS_USERNAME,
             password=REDIS_PASSWORD
         )
 
@@ -58,7 +60,7 @@ class TaskReceiver:
     async def get_exporter(self):
         exporter_code_bin = await self.redis.get(self.exporter_id)
         self.exporter = await self.get_component('exporter', exporter_code_bin)
-    
+
     async def gen_conn_id(self, task_id, exporter_id):
         return str(task_id) + ':' + str(exporter_id)
 
@@ -96,7 +98,7 @@ class TaskReceiver:
             'table_name': 'vrp_oasa_data',
             'pkey_name': 'id'
         }
-    
+
     async def get_exporter_id_and_cfg_from_api(self, task_id):
         return await self.get_exporter_id_and_cfg_from_db(task_id)
 
@@ -116,7 +118,7 @@ class TaskReceiver:
             await self.exporter.export(exporter_cfg, result.get('value'))
         except Exception as e:
             log.error(e, exc_info=True)
-    
+
     async def receivering(self):
         while True:
             if self.stop:
@@ -127,7 +129,7 @@ class TaskReceiver:
                 await self.export_result(result)
             except Exception as e:
                 log.error(e, exc_info=True)
-    
+
     async def run(self):
         await self.get_redis()
         await self.get_consumer()
@@ -137,7 +139,7 @@ class TaskReceiver:
             if self.stop:
                 break
         await self.close()
-    
+
     async def close(self):
         await self.consumer.stop()
 

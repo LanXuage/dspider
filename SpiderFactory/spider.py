@@ -1,7 +1,6 @@
 #!/bin/env python3
 # -*- coding: utf-8 -*-
 import re
-import sys
 import json
 import types
 import base64
@@ -10,7 +9,6 @@ import asyncio
 import aiohttp
 import marshal
 
-sys.path.append('.')
 from time import time
 from aioredis import Redis
 from common.helpers import is_url
@@ -21,18 +19,20 @@ from aiokafka import AIOKafkaConsumer, AIOKafkaProducer
 
 log = logging.getLogger(__name__)
 
+
 class Spider:
     def __init__(
-            self, 
-            consumer : AIOKafkaConsumer, 
-            producer : AIOKafkaProducer, 
-            redis : Redis, 
-            task_topic_name : str, 
-            result_topic_name : str, 
-            old_urls_key : str,
-            timeout=30,
-            headers={'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.63 Safari/537.36 Edg/93.0.961.47'}
-        ):
+        self,
+        consumer: AIOKafkaConsumer,
+        producer: AIOKafkaProducer,
+        redis: Redis,
+        task_topic_name: str,
+        result_topic_name: str,
+        old_urls_key: str,
+        timeout=30,
+        headers={
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/93.0.4577.63 Safari/537.36 Edg/93.0.961.47'}
+    ):
         self.consumer = consumer
         self.producer = producer
         self.redis = redis
@@ -41,7 +41,8 @@ class Spider:
         self.old_urls_key = old_urls_key
         self.timeout = timeout
         self.headers = headers
-        self.session = aiohttp.ClientSession(timeout=self.timeout, headers=self.headers)
+        self.session = aiohttp.ClientSession(
+            timeout=self.timeout, headers=self.headers)
         self.msg = None
         self.task = None
         self.stop = False
@@ -63,10 +64,10 @@ class Spider:
     async def publish_task(self, task):
         if await self.is_valid_task(task):
             await self.producer_send(self.task_topic_name, task)
-    
+
     async def producer_send(self, topic_name, data):
         await self.producer.send_and_wait(topic_name, json.dumps(data).encode())
-    
+
     async def process_payload(self, payload):
         return base64.b64encode(payload).decode()
 
@@ -134,14 +135,15 @@ class Spider:
                 self.robot_parser.set_url(robot_url)
                 await self.robot_parser.read()
                 log.info('Crawl delay %s', self.robot_parser.crawl_delay('*'))
-                log.info('Request rate %s', self.robot_parser.request_rate('*'))
+                log.info('Request rate %s',
+                         self.robot_parser.request_rate('*'))
             else:
                 self.robot_parser = None
         except:
             self.robot_parser = None
 
     async def create_tasks(self):
-        generator_id = self.task.get('generator')
+        generator_id = self.task.get('generator_id')
         if not generator_id:
             return
         if self.generator_id != generator_id:
@@ -180,7 +182,7 @@ class Spider:
         self.matcher = await self.get_component('matcher', matcher_code_bin)
 
     async def create_results(self):
-        matcher_id = self.task.get('matcher')
+        matcher_id = self.task.get('matcher_id')
         if not matcher_id:
             return
         if self.matcher_id != matcher_id:
@@ -199,7 +201,7 @@ class Spider:
             results = None
         if results:
             await self.deliver_results(results)
-    
+
     async def is_valid_task(self, task):
         return {'id', 'url', 'generator', 'matcher'} <= task.keys()
 
@@ -218,11 +220,11 @@ class Spider:
             payload = base64.b64decode(self.task.get('payload'))
         self.req = Request(url, self.task.get('method'), headers, payload)
         log.info('URL = %s. ', self.req.url)
-        #if (await self.redis.sismember(self.old_urls_key, self.req.get_req_hash())):
+        # if (await self.redis.sismember(self.old_urls_key, self.req.get_req_hash())):
         #    return True
         await self.get_robots()
         return self.use_robots and self.robot_parser and not self.robot_parser.can_fetch('*', self.req.url)
-    
+
     async def close(self):
         await self.session.close()
 
@@ -244,4 +246,3 @@ class Spider:
                     break
             except Exception as e:
                 log.error(e, exc_info=True)
-    
