@@ -2,6 +2,7 @@
 
 import base64
 import hashlib
+import json
 from common.helpers import preprocess_dict, preprocess_url
 
 
@@ -15,10 +16,13 @@ class Request:
             headers = dict()
         self.headers = headers
         if not payload:
-            payload = b''
-        if isinstance(payload, str):
-            payload = payload.encode()
-        self.payload = payload
+            self.payload = b''
+        elif isinstance(payload, str):
+            self.payload = payload.encode()
+        elif isinstance(payload, bytes):
+            self.payload = payload
+        else:
+            self.payload = b''
 
     def get_req_hash(self):
         data = preprocess_url(self.url) + ':' + self.method + ':' + preprocess_dict(

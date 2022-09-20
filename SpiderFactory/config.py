@@ -5,7 +5,7 @@ import logging
 from aiokafka.helpers import create_ssl_context
 
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s-%(levelname)s](%(name)s) %(message)s')
 ### Kafka 配置 ###
 # ip:port 格式，多个使用,隔开
 KAFKA_SERVERS = 'kafka:9093'

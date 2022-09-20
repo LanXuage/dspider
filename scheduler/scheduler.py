@@ -1,34 +1,39 @@
 #!/bin/env python3
-# -*- coding: utf-8 -*-
 import asyncio
 
 from multiprocessing import Process
 from task_processor import TaskProcessor
 from task_receiver import TaskReceiver
+from config import logging
+
+log = logging.getLogger(__name__)
 
 
 class Scheduler:
     def __init__(self,
-                 num_task_processor=1,
-                 num_task_receiver=1,
-                 num_task_processor_async=1,
-                 num_task_receiver_async=1):
-        self.num_task_processor_async = num_task_processor_async
-        self.num_task_receiver_async = num_task_receiver_async
+                 nprocessor=1,
+                 nreceiver=1,
+                 npasync=1,
+                 nrasync=1):
+        self.npasync = npasync
+        self.nrasync = nrasync
         self.tasks = [
-            Process(target=self.start_task_processor) for _ in range(num_task_processor)]
-        self.tasks.extend([
-            Process(target=self.start_task_receiver) for _ in range(num_task_receiver)])
+            Process(target=self.start_task_processor) for _ in range(nprocessor)]
+        #self.tasks.extend([
+        #    Process(target=self.start_task_receiver) for _ in range(nreceiver)])
 
     def start_task_processor(self):
-        task_processor = TaskProcessor(self.num_task_processor_async)
+        task_processor = TaskProcessor(self.npasync)
+        log.info('Task Processor starting. ')
         asyncio.run(task_processor.run())
 
     def start_task_receiver(self):
-        task_receiver = TaskReceiver(self.num_task_receiver_async)
+        task_receiver = TaskReceiver(self.nrasync)
+        log.info('Task Receiver starting. ')
         asyncio.run(task_receiver.run())
 
     def start(self):
+        log.info('Scheduler start. ')
         for task_processor in self.tasks:
             task_processor.start()
         for task_processor in self.tasks:

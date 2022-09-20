@@ -1,5 +1,4 @@
 #!/bin/env python3
-# -*- coding: utf-8 -*-
 import re
 import json
 import base64

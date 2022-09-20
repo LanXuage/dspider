@@ -203,7 +203,7 @@ class Spider:
             await self.deliver_results(results)
 
     async def is_valid_task(self, task):
-        return {'id', 'url', 'generator', 'matcher'} <= task.keys()
+        return {'id', 'url', 'generator_id', 'generator_cfg', 'matcher_id', 'matcher_cfg', 'exporter_id', 'exporter_cfg'} <= task.keys()
 
     async def is_invalid_task(self):
         if not await self.is_valid_task(self.task):
@@ -213,7 +213,7 @@ class Spider:
             return True
         headers = self.headers
         if 'headers' in self.task:
-            headers = json.loads(self.task.get('headers'))
+            headers = self.task.get('headers')
             headers.update(self.headers)
         payload = None
         if 'payload' in self.task:
@@ -235,6 +235,7 @@ class Spider:
                 await self.get_task()
                 log.info('Got task %s', self.task)
                 if (await self.is_invalid_task()):
+                    log.info('Is invalid task. ')
                     continue
                 await self.get_data()
                 log.info('Got data')

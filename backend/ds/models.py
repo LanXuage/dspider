@@ -32,7 +32,7 @@ class Task(models.Model):
                            verbose_name='任务第一个请求的URL')
     method = models.CharField(max_length=25, null=True, verbose_name='请求方法')
     headers = models.TextField(null=True)
-    payload = models.TextField(null=True)
+    payload = models.BinaryField(null=True)
     timeout = models.IntegerField(null=True)
     use_robots = models.BooleanField(null=False, default=False)
     use_tor = models.BooleanField(null=False, default=False)

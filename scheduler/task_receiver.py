@@ -1,5 +1,4 @@
 #!/bin/env python3
-# -*- coding: utf-8 -*-
 import json
 import types
 import logging
@@ -133,11 +132,7 @@ class TaskReceiver:
     async def run(self):
         await self.get_redis()
         await self.get_consumer()
-        asyncio.gather(*self.tasks)
-        while True:
-            await asyncio.sleep(1)
-            if self.stop:
-                break
+        await asyncio.gather(*self.tasks)
         await self.close()
 
     async def close(self):

@@ -71,11 +71,7 @@ class Workshop:
                 )
                 self.spiders.append(spider)
                 self.spider_coroutines.append(spider.working())
-            asyncio.gather(*self.spider_coroutines, return_exceptions=True)
-            while True:
-                await asyncio.sleep(1)
-                if self.stop:
-                    break
+            await asyncio.gather(*self.spider_coroutines, return_exceptions=True)
         except asyncio.exceptions.CancelledError as e:
             await self.close()
             raise e
