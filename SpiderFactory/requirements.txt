@@ -13,3 +13,4 @@ multidict==6.0.2
 soupsieve==2.3.2.post1
 typing-extensions==4.3.0
 yarl==1.8.1
+zstd==1.5.2.6

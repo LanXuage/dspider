@@ -14,7 +14,6 @@ log = logging.getLogger(__name__)
 class Workshop:
     def __init__(self, num_spider=2):
         self.num_spider = num_spider
-        self.stop = False
 
     async def get_redis(self):
         self.redis = await aioredis.from_url(

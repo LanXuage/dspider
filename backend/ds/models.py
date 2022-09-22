@@ -21,6 +21,7 @@ class Plugin(models.Model):
     plugin_type = models.SmallIntegerField(null=False, default=0)
     plugin_plain = models.TextField(null=True, default='')
     code_obj = models.BinaryField(null=False)
+    code_obj_version = models.CharField(max_length=32, null=False, default='')
     update_time = models.DateTimeField(null=False, default=timezone.now)
     create_time = models.DateTimeField(null=False, default=timezone.now)
 
@@ -52,6 +53,17 @@ class Task(models.Model):
     req_interval = models.IntegerField(null=True)
     start_time = models.DateTimeField(null=False, default=timezone.now)
     update_time = models.DateTimeField(null=False, default=timezone.now)
+    create_time = models.DateTimeField(null=False, default=timezone.now)
+
+
+class Log(models.Model):
+    state = models.SmallIntegerField(null=False, default=0)
+    content = models.BinaryField(null=False, default=b'')
+    plugin = models.ForeignKey(
+        Plugin, on_delete=models.CASCADE, related_name='plugin_logs')
+    task = models.ForeignKey(
+        Task, on_delete=models.CASCADE, related_name='task_logs')
+    occur_time = models.DateTimeField(null=False, default=timezone.now)
     create_time = models.DateTimeField(null=False, default=timezone.now)
 
 

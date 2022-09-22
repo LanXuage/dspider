@@ -87,9 +87,9 @@ async def send():
         "is_periodic": False,
         "task_status": 0,
         "req_interval": 15,
-        "start_time": datetime.now(),
-        "update_time": datetime.now(),
-        "create_time": datetime.now(),
+        "start_time": datetime.now().astimezone(),
+        "update_time": datetime.now().astimezone(),
+        "create_time": datetime.now().astimezone(),
         "task_name": "jizhile"
     }
     conn = await asyncpg.connect(database='dspider', user='postgres', password='7URL8rCIbJNNKq', host='127.0.0.1', port='65432')

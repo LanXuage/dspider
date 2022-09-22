@@ -15,7 +15,7 @@ from common.net import Request, Response
 
 
 async def generate(cfg: dict, req: Request, resp: Response):
-    print(resp.raw)
+    log.info(resp.raw) # log 由运行环境注入
     t = cfg.get('type')
     if t == 'url':
         next_url = get_next(cfg, req.url.encode())

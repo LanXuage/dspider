@@ -5,7 +5,7 @@ from time import time
 
 
 class ConnectsManger:
-    def __init__(self, max_conn=10, check_interval=120) -> None:
+    def __init__(self, max_conn=10, check_interval=120):
         self.conns = dict()
         self.times = dict()
         self.max_conn = max_conn
@@ -23,6 +23,9 @@ class ConnectsManger:
         return self.conns.get(t)
 
     async def start(self):
+        asyncio.create_task(self.check_loop())
+
+    async def check_loop(self):
         while True:
             try:
                 await asyncio.sleep(self.check_interval)
@@ -38,4 +41,8 @@ class ConnectsManger:
                     if self.times.get(k) == t:
                         keys.append(k)
             for k in keys:
+                try:
+                    self.times[k].close()
+                except Exception as e:
+                    pass
                 del self.times[k]

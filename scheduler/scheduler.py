@@ -11,24 +11,24 @@ log = logging.getLogger(__name__)
 
 class Scheduler:
     def __init__(self,
-                 nprocessor=1,
-                 nreceiver=1,
-                 npasync=1,
-                 nrasync=1):
-        self.npasync = npasync
-        self.nrasync = nrasync
+                 num_processor=1,
+                 num_receiver=1,
+                 num_processor_unit=1,
+                 num_receiver_unit=1):
+        self.num_processor_unit = num_processor_unit
+        self.num_receiver_unit = num_receiver_unit
         self.tasks = [
-            Process(target=self.start_task_processor) for _ in range(nprocessor)]
-        #self.tasks.extend([
-        #    Process(target=self.start_task_receiver) for _ in range(nreceiver)])
+            Process(target=self.start_task_processor) for _ in range(num_processor)]
+        self.tasks.extend([
+            Process(target=self.start_task_receiver) for _ in range(num_receiver)])
 
     def start_task_processor(self):
-        task_processor = TaskProcessor(self.npasync)
+        task_processor = TaskProcessor(self.num_processor_unit)
         log.info('Task Processor starting. ')
         asyncio.run(task_processor.run())
 
     def start_task_receiver(self):
-        task_receiver = TaskReceiver(self.nrasync)
+        task_receiver = TaskReceiver(self.num_receiver_unit)
         log.info('Task Receiver starting. ')
         asyncio.run(task_receiver.run())
 

@@ -1,25 +1,16 @@
 #!/bin/env python3
 # -*- coding: utf-8 -*-
 import asyncio
-import logging
 import asyncpg
-import logging
-
-log = logging.getLogger(__name__)
 
 
 async def export(cfg: dict, result: dict):
-    print(cfg)
-    print(result)
-    try:
-        conn: asyncpg.Pool = cfg.get('conn')
-        unique_fields = cfg.get('unique_fields')
-        table_name = cfg.get('table_name')
-        pkey_name = cfg.get('pkey_name')
-        async with conn.acquire() as c:
-            await process(c, table_name, unique_fields, pkey_name, result)
-    except Exception as e:
-        log.error(e, exc_info=True)
+    conn: asyncpg.Pool = cfg.get('conn')
+    unique_fields = cfg.get('unique_fields')
+    table_name = cfg.get('table_name')
+    pkey_name = cfg.get('pkey_name')
+    async with conn.acquire() as c:
+        await process(c, table_name, unique_fields, pkey_name, result)
 
 
 async def get_ids(c, table_name, unique_fields, pkey_name, result):
