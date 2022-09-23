@@ -104,7 +104,8 @@ class TaskReceiverUnit:
                 ds_log['occur_time']).astimezone()
             log.info(ds_log)
             async with self.pg_pool.acquire() as conn:
-                log.info(await conn.execute('INSERT INTO ds_log (state, content, occur_time, create_time, plugin_id, task_id) VALUES ($1, $2, $3, $4, $5, $6)', ds_log.get('state'), ds_log.get('content'), ds_log.get('occur_time'), ds_log.get('create_time'), ds_log.get('plugin_id'), ds_log.get('task_id')))
+                await conn.execute('INSERT INTO ds_log (state, content, occur_time, create_time, plugin_id, task_id) VALUES ($1, $2, $3, $4, $5, $6)',
+                                   ds_log.get('state'), ds_log.get('content'), ds_log.get('occur_time'), ds_log.get('create_time'), ds_log.get('plugin_id'), ds_log.get('task_id'))
 
     async def sync_task_state(self, result):
         await self.task_lock.acquire(blocking=True, blocking_timeout=30)
@@ -113,17 +114,24 @@ class TaskReceiverUnit:
             ds_task = await self.redis.get(ds_task_key)
             if ds_task and ds_task != b'null':
                 ds_task = json.loads(ds_task)
-                ds_task['results_done'] += 1
+                ds_task['results_processed'] += 1
                 await self.redis.set(ds_task_key, json.dumps(ds_task).encode())
         except Exception as e:
             log.error(e, exc_info=True)
         await self.task_lock.release()
+        if ds_task.get('total_reqs') == ds_task.get('reqs_processed') and ds_task.get('total_results') == ds_task.get('results_processed'):
+            ds_task['task_status'] += 1
+        t = datetime.now().astimezone()
+        async with self.pg_pool.acquire() as conn:
+            await conn.execute('UPDATE ds_task SET task_status = $1, update_time = $2, end_time = $3, reqs_processed = $4, results_processed = $5, total_reqs = $6, total_results = $7',
+                               ds_task.get('task_status'), t, t, ds_task.get('reqs_processed'), ds_task.get('results_processed'), ds_task.get('total_reqs'), ds_task.get('total_results'))
 
     async def receivering(self):
         while True:
             if self.stop:
                 break
             try:
+                log.info('Wait for result... ')
                 result_raw = await self.consumer.__anext__()
                 result = json.loads(zstd.uncompress(result_raw.value))
                 if self.task_lock:

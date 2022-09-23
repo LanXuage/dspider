@@ -37,7 +37,7 @@ async def update():
         with open(exporters_dir + '/' + e, 'r') as f:
             data = f.read()
             plugins.append({
-                'id': hex(c.calculate_checksum(data.encode()))[2:],
+                'id': '{:0>16s}'.format(hex(c.calculate_checksum(data.encode()))[2:]),
                 'plugin_name': e,
                 'plugin_type': 2,
                 'plugin_plain': data,
@@ -51,7 +51,7 @@ async def update():
         with open(generators_dir + '/' + e, 'r') as f:
             data = f.read()
             plugins.append({
-                'id': hex(c.calculate_checksum(data.encode()))[2:],
+                'id': '{:0>16s}'.format(hex(c.calculate_checksum(data.encode()))[2:]),
                 'plugin_name': e,
                 'plugin_type': 0,
                 'plugin_plain': data,
@@ -65,7 +65,7 @@ async def update():
         with open(matchers_dir + '/' + e, 'r') as f:
             data = f.read()
             plugins.append({
-                'id': hex(c.calculate_checksum(data.encode()))[2:],
+                'id': '{:0>16s}'.format(hex(c.calculate_checksum(data.encode()))[2:]),
                 'plugin_name': e,
                 'plugin_type': 1,
                 'plugin_plain': data,

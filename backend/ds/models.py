@@ -26,12 +26,11 @@ class Plugin(models.Model):
     create_time = models.DateTimeField(null=False, default=timezone.now)
 
 
-class Task(models.Model):
+class Plan(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    task_name = models.CharField(max_length=50, null=False, default='')
-    url = models.CharField(max_length=100, null=False,
-                           verbose_name='任务第一个请求的URL')
-    method = models.CharField(max_length=25, null=True, verbose_name='请求方法')
+    plan_name = models.CharField(max_length=50, null=False, default='')
+    url = models.CharField(max_length=100, null=False)
+    method = models.CharField(max_length=25, null=True)
     headers = models.TextField(null=True)
     payload = models.BinaryField(null=True)
     timeout = models.IntegerField(null=True)
@@ -39,19 +38,34 @@ class Task(models.Model):
     use_tor = models.BooleanField(null=False, default=False)
     use_proxy = models.BooleanField(null=False, default=False)
     generator = models.ForeignKey(
-        Plugin, on_delete=models.CASCADE, related_name='g_task_set')
-    generator_cfg = models.TextField(null=True)
+        Plugin, on_delete=models.CASCADE, related_name='g_plans')
+    generator_cfg = models.TextField(null=True, default='{}')
     matcher = models.ForeignKey(
-        Plugin, on_delete=models.CASCADE, related_name='m_task_set')
-    matcher_cfg = models.TextField(null=True)
+        Plugin, on_delete=models.CASCADE, related_name='m_plans')
+    matcher_cfg = models.TextField(null=False, default='{}')
     exporter = models.ForeignKey(
-        Plugin, on_delete=models.CASCADE, related_name='e_task_set')
-    exporter_cfg = models.TextField(null=True)
+        Plugin, on_delete=models.CASCADE, related_name='e_plans')
+    exporter_cfg = models.TextField(null=False, default='{}')
     is_periodic = models.BooleanField(null=False, default=False)
-    task_status = models.SmallIntegerField(null=False, default=0)
+    plan_status = models.SmallIntegerField(null=False, default=0)
     cron_expn = models.CharField(max_length=60, null=True)
-    req_interval = models.IntegerField(null=True)
+    req_interval = models.IntegerField(null=True, default=5)
     start_time = models.DateTimeField(null=False, default=timezone.now)
+    update_time = models.DateTimeField(null=False, default=timezone.now)
+    create_time = models.DateTimeField(null=False, default=timezone.now)
+
+
+class Task(models.Model):
+    id = models.CharField(max_length=32, null=False, primary_key=True)
+    plan = models.ForeignKey(
+        Plan, on_delete=models.CASCADE, related_name='tasks', null=True)
+    task_status = models.SmallIntegerField(null=False, default=0)
+    total_reqs = models.IntegerField(null=False, default=1)
+    reqs_processed = models.IntegerField(null=False, default=0)
+    total_results = models.IntegerField(null=False, default=0)
+    results_processed = models.IntegerField(null=False, default=0)
+    start_time = models.DateTimeField(null=False, default=timezone.now)
+    end_time = models.DateTimeField(null=True)
     update_time = models.DateTimeField(null=False, default=timezone.now)
     create_time = models.DateTimeField(null=False, default=timezone.now)
 
@@ -60,9 +74,9 @@ class Log(models.Model):
     state = models.SmallIntegerField(null=False, default=0)
     content = models.BinaryField(null=False, default=b'')
     plugin = models.ForeignKey(
-        Plugin, on_delete=models.CASCADE, related_name='plugin_logs')
+        Plugin, on_delete=models.CASCADE, related_name='p_logs')
     task = models.ForeignKey(
-        Task, on_delete=models.CASCADE, related_name='task_logs')
+        Task, on_delete=models.CASCADE, related_name='t_logs')
     occur_time = models.DateTimeField(null=False, default=timezone.now)
     create_time = models.DateTimeField(null=False, default=timezone.now)
 

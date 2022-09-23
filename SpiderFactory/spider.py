@@ -236,14 +236,18 @@ class Spider:
             if ds_task and ds_task != b'null':
                 ds_task = json.loads(ds_task)
                 log.info('Next reqs %s', self.next_reqs)
-                ds_task['tasks'] += len(self.next_reqs)
-                log.info('Next rs %s', self.results)
-                ds_task['results'] += len(self.results)
-                ds_task['tasks_done'] += 1
+                if self.next_reqs:
+                    ds_task['total_reqs'] += len(self.next_reqs)
+                log.info('Results %s', self.results)
+                if self.results:
+                    ds_task['total_results'] += len(self.results)
+                ds_task['reqs_processed'] += 1
                 await self.redis.set(ds_task_key, json.dumps(ds_task).encode())
         except Exception as e:
             log.error(e, exc_info=True)
         await self.task_lock.release()
+        self.next_reqs = None
+        self.results = None
 
     async def get_generator(self):
         generator_code_bin = await self.redis.get(self.generator_id)

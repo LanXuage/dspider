@@ -67,6 +67,17 @@ async def send():
                                            "signature": "desc", "head_img": "avatar:fileb64e", "doc_id": "biz:b64d"}, "item": "data.accounts", "add": {"type": "wechat_oaccount", "appid": ""}}
     generator_cfg = {"type": "payload", "re_an_1": "InBhZ2UiOlxzKihcZCspLA==", "re_an_1_group": 1,
                      "d": 1, "match": "InBhZ2UiOlxzKihcZCspLA==", "replace": "InBhZ2UiOiB7e2FufX0s"}
+    exporter_cfg = {
+        'type': 'pgsql',
+        'dbname': 'dtest',
+        'username': 'postgres',
+        'password': '7URL8rCIbJNNKq',
+        'host': 'pgsql',
+        'port': 5432,
+        'unique_fields': ['username'],
+        'table_name': 'vrp_oasa_data',
+        'pkey_name': 'id'
+    }
     jizhile_task = {
         "id": 1,
         "user_id": 1,
@@ -78,12 +89,12 @@ async def send():
         "use_robots": False,
         "use_tor": False,
         "use_proxy": False,
-        "generator_id": "d906ec4c9228aeb3",
+        "generator_id": "0b23a132f2183f20",
         "generator_cfg": generator_cfg,
-        "matcher_id": "370997ab9656a5ee",
+        "matcher_id": "aef0a5cc7641af57",
         "matcher_cfg": matcher_cfg,
-        "exporter_id": "b9bccef6cd18f7db",
-        "exporter_cfg": {},
+        "exporter_id": "09090df3711fb3eb",
+        "exporter_cfg": exporter_cfg,
         "is_periodic": False,
         "task_status": 0,
         "req_interval": 15,
@@ -93,8 +104,8 @@ async def send():
         "task_name": "jizhile"
     }
     conn = await asyncpg.connect(database='dspider', user='postgres', password='7URL8rCIbJNNKq', host='127.0.0.1', port='65432')
-    await conn.execute('INSERT INTO ds_task (id, user_id, url, method, headers, payload, timeout, use_robots, use_tor, use_proxy, generator_id, generator_cfg, matcher_id, matcher_cfg, exporter_id, exporter_cfg, \
-        is_periodic, task_status, req_interval, start_time, update_time, create_time, task_name) \
+    await conn.execute('INSERT INTO ds_plan (id, user_id, url, method, headers, payload, timeout, use_robots, use_tor, use_proxy, generator_id, generator_cfg, matcher_id, matcher_cfg, exporter_id, exporter_cfg, \
+        is_periodic, plan_status, req_interval, start_time, update_time, create_time, plan_name) \
         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23)',
                        jizhile_task['id'], jizhile_task['user_id'], jizhile_task['url'], jizhile_task['method'], json.dumps(jizhile_task['headers']), jizhile_task['payload'], 
                        jizhile_task['timeout'], jizhile_task['use_robots'], jizhile_task['use_tor'], jizhile_task['use_proxy'], jizhile_task['generator_id'], json.dumps(jizhile_task['generator_cfg']), 
